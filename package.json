@@ -1,7 +1,7 @@
 {
-  "name": "eager-google-translate",
-  "version": "1.1.0",
-  "description": "Google Translate for [Eager](https://eager.io).",
+  "name": "eager-forecast-io",
+  "version": "0.0.0",
+  "description": "Forecast.io for [Eager](https://eager.io).",
   "main": "app.js",
   "scripts": {
     "start": "babel --watch --out-dir build app.js",
@@ -9,14 +9,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/TeffenEllis/eager-google-translate.git"
+    "url": "git+https://github.com/Conzor/EagerForecastIO.git"
   },
-  "author": "Teffen Ellis",
+  "author": "Conzor",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/TeffenEllis/eager-google-translate/issues"
+    "url": "https://github.com/Conzor/EagerForecastIO.git/issues"
   },
-  "homepage": "https://github.com/TeffenEllis/eager-google-translate#readme",
+  "homepage": "https://github.com/Conzor/EagerForecastIO.git#readme",
   "dependencies": {
     "babel-runtime": "^5.8.29"
   },
