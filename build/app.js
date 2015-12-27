@@ -44,14 +44,12 @@
           var cityAndState = addressArray[0] + " " + addressArray[1];
           name = encodeURIComponent(cityAndState);
           iFrame.src = "https://forecast.io/embed/#lat=" + position.coords.latitude + "&lon=" + position.coords.latitude + "&name=" + name + "&color=" + color + "&font=" + font + "&units=" + units;
-
-          element.appendChild(iFrame);
         } else {
           // We reached our target server, but it returned an error
           name = "Your Area";
         }
       };
-
+      element.appendChild(iFrame);
       request.onerror = function () {
         // There was a connection error of some sort
       };
