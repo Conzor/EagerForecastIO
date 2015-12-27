@@ -9,14 +9,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Conzor/EagerForecastIO.git"
+    "url": "git+https://github.com/ConzorKingKong/EagerForecastIO.git"
   },
-  "author": "Conzor",
+  "author": "ConzorKingKong",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/Conzor/EagerForecastIO/issues"
+    "url": "https://github.com/ConzorKingKong/EagerForecastIO/issues"
   },
-  "homepage": "https://github.com/Conzor/EagerForecastIO#readme",
+  "homepage": "https://github.com/ConzorKingKong/EagerForecastIO#readme",
   "dependencies": {
     "babel-runtime": "^5.8.29"
   },

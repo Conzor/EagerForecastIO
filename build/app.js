@@ -14,16 +14,19 @@ var _slicedToArray = (function () { function sliceIterator(arr, i) { var _arr = 
   var iFrame = Object.assign(document.createElement("iFrame"), {
     id: "forecast_embed",
     type: "text/html",
-    frameborder: "0",
+    frameBorder: "0",
     height: "245",
     width: "100%"
   });
 
   function updateElement() {
     var _options = options;
-    var color = _options.color;
     var font = _options.font;
     var units = _options.units;
+    var _options2 = options;
+    var _options2$colors = _options2.colors;
+    var backgroundColor = _options2$colors.backgroundColor;
+    var tempColor = _options2$colors.tempColor;
 
     var name = undefined;
 
@@ -62,8 +65,9 @@ var _slicedToArray = (function () { function sliceIterator(arr, i) { var _arr = 
           // We reached our target server, but it returned an error
           name = "Your Area";
         }
+        iFrame.style.backgroundColor = backgroundColor;
 
-        iFrame.src = "https://forecast.io/embed/#lat=" + coords.latitude + "&lon=" + coords.latitude + "&name=" + encodeURIComponent(name) + "&color=" + color + "&font=" + font + "&units=" + units;
+        iFrame.src = "https://forecast.io/embed/#lat=" + coords.latitude + "&lon=" + coords.latitude + "&name=" + encodeURIComponent(name) + "&color=" + tempColor + "&font=" + font + "&units=" + units;
         element.appendChild(iFrame);
       };
 

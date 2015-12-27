@@ -40,12 +40,26 @@
           "method": "prepend"
         }
       },
-      "color": {
-        "default": "#1bccef",
-        "format": "color",
+      "colors": {
+        "title": "Colors",
         "order": 1,
-        "title": "Temperature Bar color",
-        "type": "string"
+        "type": "object",
+        "properties": {
+          "tempColor": {
+            "default": "#1bccef",
+            "format": "color",
+            "order": 0,
+            "title": "Temperature Bar color",
+            "type": "string"
+          },
+          "backgroundColor": {
+            "default": "#fafafa",
+            "format": "color",
+            "order": 1,
+            "title": "Background color",
+            "type": "string"
+          }
+        }
       },
       "font": {
         "default": "Helvetica",
@@ -75,3 +89,4 @@
     }
   }
 }
+

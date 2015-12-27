@@ -10,13 +10,15 @@
   const iFrame = Object.assign(document.createElement("iFrame"), {
     id: "forecast_embed",
     type: "text/html",
-    frameborder: "0",
+    frameBorder: "0",
     height: "245",
     width: "100%"
   })
 
+
   function updateElement() {
-    const {color, font, units} = options
+    const {font, units} = options
+    const {colors: {backgroundColor, tempColor}} = options
     let name
 
     navigator.geolocation.getCurrentPosition(({coords}) => {
@@ -42,8 +44,9 @@
           // We reached our target server, but it returned an error
           name = "Your Area"
         }
+        iFrame.style.backgroundColor = backgroundColor
 
-        iFrame.src = `https://forecast.io/embed/#lat=${coords.latitude}&lon=${coords.latitude}&name=${encodeURIComponent(name)}&color=${color}&font=${font}&units=${units}`
+        iFrame.src = `https://forecast.io/embed/#lat=${coords.latitude}&lon=${coords.latitude}&name=${encodeURIComponent(name)}&color=${tempColor}&font=${font}&units=${units}`
         element.appendChild(iFrame)
       }
 
