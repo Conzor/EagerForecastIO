@@ -2,7 +2,7 @@
   // Check for IE9+
   if (!window.addEventListener) return
 
-  const ELEMENT_ID = "forecast_embed"
+  const ELEMENT_ID = "eager_forecast_embed"
 
   let element
   let options = INSTALL_OPTIONS

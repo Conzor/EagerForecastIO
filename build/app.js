@@ -4,7 +4,7 @@
   // Check for IE9+
   if (!window.addEventListener) return;
 
-  var ELEMENT_ID = "forecast_embed";
+  var ELEMENT_ID = "eager_forecast_embed";
 
   var element = undefined;
   var options = INSTALL_OPTIONS;
