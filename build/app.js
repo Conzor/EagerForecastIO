@@ -31,7 +31,7 @@
       element.id = ELEMENT_ID;
 
       var request = new XMLHttpRequest();
-      request.open('GET', "https://maps.googleapis.com/maps/api/geocode/json?latlng=" + positionCoordsLatitude + "," + positionCoordsLongitude + "&key=AIzaSyDjKNETqFEaZLBOvqNUskT1jxY0Buv9VuM", true);
+      request.open('GET', "https://maps.googleapis.com/maps/api/geocode/json?latlng=" + position.coords.latitude + "," + position.coords.longitude + "&key=AIzaSyDjKNETqFEaZLBOvqNUskT1jxY0Buv9VuM", true);
 
       request.onload = function () {
         if (request.status >= 200 && request.status < 400) {
@@ -42,10 +42,13 @@
 
           var addressArray = formatted_address.split(" ");
           var cityAndState = addressArray[0] + " " + addressArray[1];
-          name = cityAndState;
+          name = encodeURIComponent(cityAndState);
+          iFrame.src = "https://forecast.io/embed/#lat=" + position.coords.latitude + "&lon=" + position.coords.latitude + "&name=" + name + "&color=" + color + "&font=" + font + "&units=" + units;
+
+          element.appendChild(iFrame);
         } else {
           // We reached our target server, but it returned an error
-
+          name = "Your Area";
         }
       };
 
@@ -54,10 +57,6 @@
       };
 
       request.send();
-
-      iFrame.src = "https://forecast.io/embed/#lat=" + position.coords.latitude + "&lon=" + position.coords.latitude + "&name=" + name + "&color=" + color + "&font=" + font + "&units=" + units;
-
-      element.appendChild(iFrame);
     });
   }
 
