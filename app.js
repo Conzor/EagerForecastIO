@@ -2,103 +2,74 @@
   // Check for IE9+
   if (!window.addEventListener) return
 
-  const ELEMENT_ID = "eager-google-translate"
-  const CALLBACK_NAME = "EagerGoogleTranslateOnload"
-  const style = document.createElement("style")
+  const ELEMENT_ID = "forecast_embed"
 
-  document.head.appendChild(style)
-
-  let options = INSTALL_OPTIONS
   let element
-  let script
-
-  function updateStylesheet() {
-    const {colors: {background, foreground, text}} = options
-
-    element.setAttribute("data-position", options.position)
-
-    style.innerHTML = `
-      .goog-te-gadget {
-        background-color: ${background};
-      }
-
-      #${ELEMENT_ID} select {
-        background-color: ${foreground};
-        color: ${text};
-      }`
-  }
+  let options = INSTALL_OPTIONS
 
   function unmountNode(node) {
     if (node && node.parentNode) node.parentNode.removeChild(node)
   }
 
-  window[CALLBACK_NAME] = function updateElement() {
-    const {pageLanguage} = options
-    const {TranslateElement} = window.google.translate
-    const spec = {
-      layout: TranslateElement.InlineLayout.VERTICAL,
-      pageLanguage
-    }
+  function updateElement() {
+    const iFrame = document.createElement("iframe")
+    const color = options.color
+    const font = options.font
+    const units = options.units
+    let name
 
-    element = Eager.createElement(options.element, element)
-    element.id = ELEMENT_ID
+    iFrame.id = "forecast_embed"
+    iFrame.type = "text/html"
+    iFrame.frameborder = "0"
+    iFrame.height = "245"
+    iFrame.width = "100%"
 
-    if (options.specificLanguagesToggle) {
-      const {specificLanguages} = options
+    navigator.geolocation.getCurrentPosition(function(position) {
+      element = Eager.createElement(options.element, element)
+      element.id = ELEMENT_ID
 
-      spec.includedLanguages = Object
-        .keys(specificLanguages)
-        .filter(key => specificLanguages[key])
-        .map(key => key.replace("_", "-")) // Convert Eager's schema to Google's.
-        .join(",")
-    }
+      const request = new XMLHttpRequest()
+      request.open('GET', `https://maps.googleapis.com/maps/api/geocode/json?latlng=${positionCoordsLatitude},${positionCoordsLongitude}&key=AIzaSyDjKNETqFEaZLBOvqNUskT1jxY0Buv9VuM`, true)
 
-    if (options.advancedOptionsToggle) {
-      const {advancedOptions} = options
+      request.onload = function() {
+        if (request.status >= 200 && request.status < 400) {
+          // Success!
+          const data = JSON.parse(request.responseText)
+          console.log(data)
+          const {formatted_address} = data.results[1]
+          const addressArray = formatted_address.split(" ")
+          const cityAndState = addressArray[0] + " " + addressArray[1]
+          name = cityAndState
+        } else {
+          // We reached our target server, but it returned an error
 
-      spec.multilanguagePage = advancedOptions.multilanguagePage
-      spec.autoDisplay = advancedOptions.autoDisplay
-    }
+        }
+      }
 
-    updateStylesheet()
+      request.onerror = function() {
+        // There was a connection error of some sort
+      }
 
-    new TranslateElement(spec, ELEMENT_ID) // eslint-disable-line no-new
-  }
+      request.send()
 
-  function updateScript() {
-    [script, document.querySelector(".skiptranslate")].forEach(unmountNode)
+      iFrame.src = `https://forecast.io/embed/#lat=${position.coords.latitude}&lon=${position.coords.latitude}&name=${name}&color=${color}&font=${font}&units=${units}`
 
-    script = document.createElement("script")
-    script.type = "text/javascript"
-    // Google's global callback must be used to reliably access `window.google.translate`.
-    script.src = `//translate.google.com/translate_a/element.js?cb=${CALLBACK_NAME}`
-
-    document.head.appendChild(script)
+      element.appendChild(iFrame)
+    })
   }
 
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", updateScript)
+    document.addEventListener("DOMContentLoaded", updateElement)
   }
   else {
-    updateScript()
+    updateElement()
   }
 
   INSTALL_SCOPE = { // eslint-disable-line no-undef
-    setStylesheet(nextOptions) {
-      options = nextOptions
-
-      updateStylesheet()
-    },
     setOptions(nextOptions) {
       options = nextOptions
 
-      // Clear the user's previously selected translation.
-      document.cookie = document.cookie
-        .split("; ")
-        .filter(cookie => cookie.indexOf("googtrans") === -1)
-        .join("; ")
-
-      updateScript()
+      updateElement()
     }
   }
 }())

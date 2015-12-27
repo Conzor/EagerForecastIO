@@ -4,104 +4,74 @@
   // Check for IE9+
   if (!window.addEventListener) return;
 
-  var ELEMENT_ID = "eager-google-translate";
-  var CALLBACK_NAME = "EagerGoogleTranslateOnload";
-  var style = document.createElement("style");
+  var ELEMENT_ID = "forecast_embed";
 
-  document.head.appendChild(style);
-
-  var options = INSTALL_OPTIONS;
   var element = undefined;
-  var script = undefined;
-
-  function updateStylesheet() {
-    var _options = options;
-    var _options$colors = _options.colors;
-    var background = _options$colors.background;
-    var foreground = _options$colors.foreground;
-    var text = _options$colors.text;
-
-    element.setAttribute("data-position", options.position);
-
-    style.innerHTML = "\n      .goog-te-gadget {\n        background-color: " + background + ";\n      }\n\n      #" + ELEMENT_ID + " select {\n        background-color: " + foreground + ";\n        color: " + text + ";\n      }";
-  }
+  var options = INSTALL_OPTIONS;
 
   function unmountNode(node) {
     if (node && node.parentNode) node.parentNode.removeChild(node);
   }
 
-  window[CALLBACK_NAME] = function updateElement() {
-    var _options2 = options;
-    var pageLanguage = _options2.pageLanguage;
-    var TranslateElement = window.google.translate.TranslateElement;
+  function updateElement() {
+    var iFrame = document.createElement("iframe");
+    var color = options.color;
+    var font = options.font;
+    var units = options.units;
+    var name = undefined;
 
-    var spec = {
-      layout: TranslateElement.InlineLayout.VERTICAL,
-      pageLanguage: pageLanguage
-    };
+    iFrame.id = "forecast_embed";
+    iFrame.type = "text/html";
+    iFrame.frameborder = "0";
+    iFrame.height = "245";
+    iFrame.width = "100%";
 
-    element = Eager.createElement(options.element, element);
-    element.id = ELEMENT_ID;
+    navigator.geolocation.getCurrentPosition(function (position) {
+      element = Eager.createElement(options.element, element);
+      element.id = ELEMENT_ID;
 
-    if (options.specificLanguagesToggle) {
-      (function () {
-        var _options3 = options;
-        var specificLanguages = _options3.specificLanguages;
+      var request = new XMLHttpRequest();
+      request.open('GET', "https://maps.googleapis.com/maps/api/geocode/json?latlng=" + positionCoordsLatitude + "," + positionCoordsLongitude + "&key=AIzaSyDjKNETqFEaZLBOvqNUskT1jxY0Buv9VuM", true);
 
-        spec.includedLanguages = Object.keys(specificLanguages).filter(function (key) {
-          return specificLanguages[key];
-        }).map(function (key) {
-          return key.replace("_", "-");
-        }) // Convert Eager's schema to Google's.
-        .join(",");
-      })();
-    }
+      request.onload = function () {
+        if (request.status >= 200 && request.status < 400) {
+          // Success!
+          var data = JSON.parse(request.responseText);
+          console.log(data);
+          var formatted_address = data.results[1].formatted_address;
 
-    if (options.advancedOptionsToggle) {
-      var _options4 = options;
-      var advancedOptions = _options4.advancedOptions;
+          var addressArray = formatted_address.split(" ");
+          var cityAndState = addressArray[0] + " " + addressArray[1];
+          name = cityAndState;
+        } else {
+          // We reached our target server, but it returned an error
 
-      spec.multilanguagePage = advancedOptions.multilanguagePage;
-      spec.autoDisplay = advancedOptions.autoDisplay;
-    }
+        }
+      };
 
-    updateStylesheet();
+      request.onerror = function () {
+        // There was a connection error of some sort
+      };
 
-    new TranslateElement(spec, ELEMENT_ID); // eslint-disable-line no-new
-  };
+      request.send();
 
-  function updateScript() {
-    [script, document.querySelector(".skiptranslate")].forEach(unmountNode);
+      iFrame.src = "https://forecast.io/embed/#lat=" + position.coords.latitude + "&lon=" + position.coords.latitude + "&name=" + name + "&color=" + color + "&font=" + font + "&units=" + units;
 
-    script = document.createElement("script");
-    script.type = "text/javascript";
-    // Google's global callback must be used to reliably access `window.google.translate`.
-    script.src = "//translate.google.com/translate_a/element.js?cb=" + CALLBACK_NAME;
-
-    document.head.appendChild(script);
+      element.appendChild(iFrame);
+    });
   }
 
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", updateScript);
+    document.addEventListener("DOMContentLoaded", updateElement);
   } else {
-    updateScript();
+    updateElement();
   }
 
   INSTALL_SCOPE = { // eslint-disable-line no-undef
-    setStylesheet: function setStylesheet(nextOptions) {
-      options = nextOptions;
-
-      updateStylesheet();
-    },
     setOptions: function setOptions(nextOptions) {
       options = nextOptions;
 
-      // Clear the user's previously selected translation.
-      document.cookie = document.cookie.split("; ").filter(function (cookie) {
-        return cookie.indexOf("googtrans") === -1;
-      }).join("; ");
-
-      updateScript();
+      updateElement();
     }
   };
 })();

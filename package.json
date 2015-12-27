@@ -14,9 +14,9 @@
   "author": "Conzor",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/Conzor/EagerForecastIO.git/issues"
+    "url": "https://github.com/Conzor/EagerForecastIO/issues"
   },
-  "homepage": "https://github.com/Conzor/EagerForecastIO.git#readme",
+  "homepage": "https://github.com/Conzor/EagerForecastIO#readme",
   "dependencies": {
     "babel-runtime": "^5.8.29"
   },
