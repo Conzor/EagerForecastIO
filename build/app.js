@@ -1,5 +1,7 @@
 "use strict";
 
+var _slicedToArray = (function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; })();
+
 (function () {
   // Check for IE9+
   if (!window.addEventListener) return;
@@ -9,19 +11,21 @@
 
   var element = undefined;
   var options = INSTALL_OPTIONS;
-  var iFrame = document.createElement("iframe");
+  var iFrame = Object.assign(document.createElement("iFrame"), {
+    id: "forecast_embed",
+    type: "text/html",
+    frameborder: "0",
+    height: "245",
+    width: "100%"
+  });
 
   function updateElement() {
-    var color = options.color;
-    var font = options.font;
-    var units = options.units;
-    var name = undefined;
+    var _options = options;
+    var color = _options.color;
+    var font = _options.font;
+    var units = _options.units;
 
-    iFrame.id = "forecast_embed";
-    iFrame.type = "text/html";
-    iFrame.frameborder = "0";
-    iFrame.height = "245";
-    iFrame.width = "100%";
+    var name = undefined;
 
     navigator.geolocation.getCurrentPosition(function (_ref) {
       var coords = _ref.coords;
@@ -40,11 +44,20 @@
 
           console.log(data);
 
-          var formatted_address = data.results[1].formatted_address;
+          var _data$results$1$formatted_address$split = data.results[1].formatted_address.split(", ");
 
-          var addressArray = formatted_address.split(" ");
+          var _data$results$1$formatted_address$split2 = _slicedToArray(_data$results$1$formatted_address$split, 2);
 
-          name = addressArray[0] + " " + addressArray[1];
+          var city = _data$results$1$formatted_address$split2[0];
+          var stateAndZip = _data$results$1$formatted_address$split2[1];
+
+          var _stateAndZip$split = stateAndZip.split(" ");
+
+          var _stateAndZip$split2 = _slicedToArray(_stateAndZip$split, 1);
+
+          var state = _stateAndZip$split2[0];
+
+          name = city + ", " + state;
         } else {
           // We reached our target server, but it returned an error
           name = "Your Area";

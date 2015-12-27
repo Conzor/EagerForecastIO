@@ -7,19 +7,17 @@
 
   let element
   let options = INSTALL_OPTIONS
-  const iFrame = document.createElement("iframe")
+  const iFrame = Object.assign(document.createElement("iFrame"), {
+    id: "forecast_embed",
+    type: "text/html",
+    frameborder: "0",
+    height: "245",
+    width: "100%"
+  })
 
   function updateElement() {
-    const color = options.color
-    const font = options.font
-    const units = options.units
+    const {color, font, units} = options
     let name
-
-    iFrame.id = "forecast_embed"
-    iFrame.type = "text/html"
-    iFrame.frameborder = "0"
-    iFrame.height = "245"
-    iFrame.width = "100%"
 
     navigator.geolocation.getCurrentPosition(({coords}) => {
       element = Eager.createElement(options.element, element)
@@ -36,10 +34,9 @@
 
           console.log(data)
 
-          const {formatted_address} = data.results[1]
-          const addressArray = formatted_address.split(" ")
-
-          name = addressArray[0] + " " + addressArray[1]
+          const [city, stateAndZip] = data.results[1].formatted_address.split(", ")
+          const [state] = stateAndZip.split(" ")
+          name = `${city}, ${state}`
         }
         else {
           // We reached our target server, but it returned an error
