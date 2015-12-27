@@ -58,7 +58,19 @@
         "default": "us",
         "order": 3,
         "title": "Units",
-        "type": "string"
+        "type": "string",
+        "enum": [
+          "us",
+          "uk",
+          "si",
+          "ca"
+        ],
+        "enumNames": {
+          "us": "Fahrenheit and mph",
+          "uk": "Celsius and mph",
+          "si": "Celsius and m/s",
+          "ca": "Celsius and km/h"
+        }
       }
     }
   }
