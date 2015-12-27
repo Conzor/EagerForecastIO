@@ -48,8 +48,9 @@
         "type": "string"
       },
       "font": {
-        "default": "georgia",
+        "default": "Helvetica",
         "order": 2,
+        "placeholder": "Helvetica",
         "title": "Font",
         "type": "string"
       },
