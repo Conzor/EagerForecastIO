@@ -2,8 +2,9 @@
   // Check for IE9+
   if (!window.addEventListener) return
 
-  const ELEMENT_ID = "eager_forecast_embed"
+  const ELEMENT_ID = "eager-forecast"
   const API_KEY = "AIzaSyDjKNETqFEaZLBOvqNUskT1jxY0Buv9VuM"
+  const CONTAINER_HEIGHT = 245
 
   let element
   let options = INSTALL_OPTIONS
@@ -11,7 +12,8 @@
     id: "forecast_embed",
     type: "text/html",
     frameBorder: "0",
-    height: "245",
+    height: CONTAINER_HEIGHT,
+    seamless: "seamless",
     width: "100%"
   })
 
@@ -24,6 +26,7 @@
     navigator.geolocation.getCurrentPosition(({coords}) => {
       element = Eager.createElement(options.element, element)
       element.id = ELEMENT_ID
+      element.style.height = `${CONTAINER_HEIGHT}px`
 
       const request = new XMLHttpRequest()
 
@@ -34,10 +37,9 @@
           // Success!
           const data = JSON.parse(request.responseText)
 
-          console.log(data)
-
           const [city, stateAndZip] = data.results[1].formatted_address.split(", ")
           const [state] = stateAndZip.split(" ")
+
           name = `${city}, ${state}`
         }
         else {
