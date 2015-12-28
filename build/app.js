@@ -6,8 +6,9 @@ var _slicedToArray = (function () { function sliceIterator(arr, i) { var _arr = 
   // Check for IE9+
   if (!window.addEventListener) return;
 
-  var ELEMENT_ID = "eager_forecast_embed";
+  var ELEMENT_ID = "eager-forecast";
   var API_KEY = "AIzaSyDjKNETqFEaZLBOvqNUskT1jxY0Buv9VuM";
+  var CONTAINER_HEIGHT = 245;
 
   var element = undefined;
   var options = INSTALL_OPTIONS;
@@ -15,7 +16,8 @@ var _slicedToArray = (function () { function sliceIterator(arr, i) { var _arr = 
     id: "forecast_embed",
     type: "text/html",
     frameBorder: "0",
-    height: "245",
+    height: CONTAINER_HEIGHT,
+    seamless: "seamless",
     width: "100%"
   });
 
@@ -35,6 +37,7 @@ var _slicedToArray = (function () { function sliceIterator(arr, i) { var _arr = 
 
       element = Eager.createElement(options.element, element);
       element.id = ELEMENT_ID;
+      element.style.height = CONTAINER_HEIGHT + "px";
 
       var request = new XMLHttpRequest();
 
@@ -44,8 +47,6 @@ var _slicedToArray = (function () { function sliceIterator(arr, i) { var _arr = 
         if (request.status >= 200 && request.status < 400) {
           // Success!
           var data = JSON.parse(request.responseText);
-
-          console.log(data);
 
           var _data$results$1$formatted_address$split = data.results[1].formatted_address.split(", ");
 

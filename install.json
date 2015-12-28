@@ -16,22 +16,14 @@
       {
         "options": ["*"],
         "execute": "INSTALL_SCOPE.setOptions(INSTALL_OPTIONS)"
-      },
-      {
-         "options": [
-           "element",
-           "color",
-           "font",
-           "units"
-         ],
-         "execute": "INSTALL_SCOPE.setOptions(INSTALL_OPTIONS)"
-       }
+      }
     ]
   },
   "options": {
     "properties": {
       "element": {
-        "title": "Forecast selector location",
+        "description": "Where do you want the forecast to appear?",
+        "title": "Forecast location",
         "order": 0,
         "type": "object",
         "format": "element",
@@ -46,23 +38,23 @@
         "type": "object",
         "properties": {
           "tempColor": {
-            "default": "#1bccef",
+            "default": "#000000",
             "format": "color",
             "order": 0,
-            "title": "Temperature Bar color",
+            "title": "Temperature bar",
             "type": "string"
           },
           "backgroundColor": {
-            "default": "#fafafa",
+            "default": "#ffffff",
             "format": "color",
             "order": 1,
-            "title": "Background color",
+            "title": "Background",
             "type": "string"
           }
         }
       },
       "font": {
-        "default": "Helvetica",
+        "description": "What font should be used for the forecast?",
         "order": 2,
         "placeholder": "Helvetica",
         "title": "Font",
@@ -70,6 +62,7 @@
       },
       "units": {
         "default": "us",
+        "description": "What units should be used for temperature and wind speed?",
         "order": 3,
         "title": "Units",
         "type": "string",
