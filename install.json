@@ -32,33 +32,39 @@
           "method": "prepend"
         }
       },
+      "zip": {
+        "default": "02142",
+        "description": "Put in your zip code to see your weather!",
+        "order": 1,
+        "title": "Zip code",
+        "type": "string"
+      },
       "colors": {
         "title": "Colors",
-        "order": 1,
+        "order": 2,
         "type": "object",
         "properties": {
           "tempColor": {
             "default": "#000000",
             "format": "color",
             "order": 0,
-            "title": "Temperature bar",
+            "title": "Temperature bars",
             "type": "string"
           },
-          "backgroundColor": {
-            "default": "#ffffff",
-            "format": "color",
-            "order": 1,
-            "title": "Background",
-            "type": "string"
-          }
-        }
+          "enableBackgroundColor": {
+          "order": 1,
+          "title": "Enable Background Color",
+          "type": "boolean"
       },
-      "font": {
-        "description": "What font should be used for the forecast?",
+      "backgroundColor": {
+        "showIf": {"colors.enableBackgroundColor": true},
+        "default": "",
+        "format": "color",
         "order": 2,
-        "placeholder": "Helvetica",
-        "title": "Font",
+        "title": "Background",
         "type": "string"
+        }
+       }
       },
       "units": {
         "default": "us",

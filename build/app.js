@@ -7,7 +7,6 @@ var _slicedToArray = (function () { function sliceIterator(arr, i) { var _arr = 
   if (!window.addEventListener) return;
 
   var ELEMENT_ID = "eager-forecast";
-  var API_KEY = "AIzaSyDjKNETqFEaZLBOvqNUskT1jxY0Buv9VuM";
   var CONTAINER_HEIGHT = 245;
 
   var element = undefined;
@@ -23,37 +22,35 @@ var _slicedToArray = (function () { function sliceIterator(arr, i) { var _arr = 
 
   function updateElement() {
     var _options = options;
-    var font = _options.font;
-    var units = _options.units;
+    var tempColor = _options.colors.tempColor;
+
+    var font = "Helvetica";
     var _options2 = options;
-    var _options2$colors = _options2.colors;
-    var backgroundColor = _options2$colors.backgroundColor;
-    var tempColor = _options2$colors.tempColor;
+    var zip = _options2.zip;
+    var units = _options2.units;
 
     var name = undefined;
 
-    navigator.geolocation.getCurrentPosition(function (_ref) {
-      var coords = _ref.coords;
+    element = Eager.createElement(options.element, element);
+    element.id = ELEMENT_ID;
+    element.style.height = CONTAINER_HEIGHT + "px";
 
-      element = Eager.createElement(options.element, element);
-      element.id = ELEMENT_ID;
-      element.style.height = CONTAINER_HEIGHT + "px";
+    var request = new XMLHttpRequest();
 
-      var request = new XMLHttpRequest();
+    request.open("GET", "http://maps.googleapis.com/maps/api/geocode/json?address=" + zip, true);
 
-      request.open("GET", "https://maps.googleapis.com/maps/api/geocode/json?latlng=" + coords.latitude + "," + coords.longitude + "&key=" + API_KEY, true);
+    request.onload = function () {
+      if (request.status >= 200 && request.status < 400) {
+        // Success!
+        var data = JSON.parse(request.responseText);
 
-      request.onload = function () {
-        if (request.status >= 200 && request.status < 400) {
-          // Success!
-          var data = JSON.parse(request.responseText);
+        if (data.status === "OK") {
+          var _data$results$0$formatted_address$split = data.results[0].formatted_address.split(", ");
 
-          var _data$results$1$formatted_address$split = data.results[1].formatted_address.split(", ");
+          var _data$results$0$formatted_address$split2 = _slicedToArray(_data$results$0$formatted_address$split, 2);
 
-          var _data$results$1$formatted_address$split2 = _slicedToArray(_data$results$1$formatted_address$split, 2);
-
-          var city = _data$results$1$formatted_address$split2[0];
-          var stateAndZip = _data$results$1$formatted_address$split2[1];
+          var city = _data$results$0$formatted_address$split2[0];
+          var stateAndZip = _data$results$0$formatted_address$split2[1];
 
           var _stateAndZip$split = stateAndZip.split(" ");
 
@@ -62,22 +59,26 @@ var _slicedToArray = (function () { function sliceIterator(arr, i) { var _arr = 
           var state = _stateAndZip$split2[0];
 
           name = city + ", " + state;
+          var lat = data.results[0].geometry.location.lat;
+          var lon = data.results[0].geometry.location.lng;
+
+          iFrame.src = "https://forecast.io/embed/#lat=" + lat + "&lon=" + lon + "&name=" + encodeURIComponent(name) + "&color=" + tempColor + "&font=" + font + "&units=" + units;
+          element.appendChild(iFrame);
         } else {
-          // We reached our target server, but it returned an error
-          name = "Your Area";
+          // data.status wasn't okay
+
         }
-        iFrame.style.backgroundColor = backgroundColor;
+      } else {
+          // We reached our target server, but it returned an error
 
-        iFrame.src = "https://forecast.io/embed/#lat=" + coords.latitude + "&lon=" + coords.latitude + "&name=" + encodeURIComponent(name) + "&color=" + tempColor + "&font=" + font + "&units=" + units;
-        element.appendChild(iFrame);
-      };
+        }
+    };
 
-      request.onerror = function () {
-        // There was a connection error of some sort
-      };
+    request.onerror = function () {
+      // There was a connection error of some sort
+    };
 
-      request.send();
-    });
+    request.send();
   }
 
   if (document.readyState === "loading") {

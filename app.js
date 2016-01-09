@@ -3,7 +3,6 @@
   if (!window.addEventListener) return
 
   const ELEMENT_ID = "eager-forecast"
-  const API_KEY = "AIzaSyDjKNETqFEaZLBOvqNUskT1jxY0Buv9VuM"
   const CONTAINER_HEIGHT = 245
 
   let element
@@ -19,46 +18,55 @@
 
 
   function updateElement() {
-    const {font, units} = options
-    const {colors: {backgroundColor, tempColor}} = options
+    const {colors: {tempColor}} = options
+    const font = "Helvetica"
+    const {zip, units} = options
     let name
 
-    navigator.geolocation.getCurrentPosition(({coords}) => {
-      element = Eager.createElement(options.element, element)
-      element.id = ELEMENT_ID
-      element.style.height = `${CONTAINER_HEIGHT}px`
+    element = Eager.createElement(options.element, element)
+    element.id = ELEMENT_ID
+    element.style.height = `${CONTAINER_HEIGHT}px`
 
-      const request = new XMLHttpRequest()
+    const request = new XMLHttpRequest()
 
-      request.open("GET", `https://maps.googleapis.com/maps/api/geocode/json?latlng=${coords.latitude},${coords.longitude}&key=${API_KEY}`, true)
+    request.open("GET", `http://maps.googleapis.com/maps/api/geocode/json?address=${zip}`, true)
 
-      request.onload = function() {
-        if (request.status >= 200 && request.status < 400) {
-          // Success!
-          const data = JSON.parse(request.responseText)
+    request.onload = function() {
+      if (request.status >= 200 && request.status < 400) {
+        // Success!
+        const data = JSON.parse(request.responseText)
 
-          const [city, stateAndZip] = data.results[1].formatted_address.split(", ")
+        if (data.status === "OK") {
+          const [city, stateAndZip] = data.results[0].formatted_address.split(", ")
+
           const [state] = stateAndZip.split(" ")
 
           name = `${city}, ${state}`
+          const lat = data.results[0].geometry.location.lat
+          const lon = data.results[0].geometry.location.lng
+
+          iFrame.src = `https://forecast.io/embed/#lat=${lat}&lon=${lon}&name=${encodeURIComponent(name)}&color=${tempColor}&font=${font}&units=${units}`
+          element.appendChild(iFrame)
         }
         else {
-          // We reached our target server, but it returned an error
-          name = "Your Area"
+          // data.status wasn't okay
+
         }
-        iFrame.style.backgroundColor = backgroundColor
-
-        iFrame.src = `https://forecast.io/embed/#lat=${coords.latitude}&lon=${coords.latitude}&name=${encodeURIComponent(name)}&color=${tempColor}&font=${font}&units=${units}`
-        element.appendChild(iFrame)
       }
+      else {
+        // We reached our target server, but it returned an error
 
-      request.onerror = function() {
+      }
+    }
+
+
+    request.onerror = function() {
         // There was a connection error of some sort
-      }
+    }
 
-      request.send()
-    })
+    request.send()
   }
+
 
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", updateElement)
@@ -66,6 +74,7 @@
   else {
     updateElement()
   }
+
 
   INSTALL_SCOPE = { // eslint-disable-line no-undef
     setOptions(nextOptions) {
