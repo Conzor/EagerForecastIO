@@ -37,7 +37,7 @@ var _slicedToArray = (function () { function sliceIterator(arr, i) { var _arr = 
 
     var request = new XMLHttpRequest();
 
-    request.open("GET", "http://maps.googleapis.com/maps/api/geocode/json?address=" + zip, true);
+    request.open("GET", "https://maps.googleapis.com/maps/api/geocode/json?address=" + zip, true);
 
     request.onload = function () {
       if (request.status >= 200 && request.status < 400) {
