@@ -52,19 +52,19 @@
             "type": "string"
           },
           "enableBackgroundColor": {
-          "order": 1,
-          "title": "Enable Background Color",
-          "type": "boolean"
-      },
-      "backgroundColor": {
-        "showIf": {"colors.enableBackgroundColor": true},
-        "default": "",
-        "format": "color",
-        "order": 2,
-        "title": "Background",
-        "type": "string"
+            "order": 1,
+            "title": "Use background color",
+            "type": "boolean"
+          },
+          "backgroundColor": {
+            "showIf": {"colors.enableBackgroundColor": true},
+            "default": "#ffffff",
+            "format": "color",
+            "order": 2,
+            "title": "Background",
+            "type": "string"
+          }
         }
-       }
       },
       "units": {
         "default": "us",

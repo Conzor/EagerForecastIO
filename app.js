@@ -18,9 +18,8 @@
 
 
   function updateElement() {
-    const {colors: {tempColor}} = options
+    const {colors, zip, units} = options
     const font = "Helvetica"
-    const {zip, units} = options
     let name
 
     element = Eager.createElement(options.element, element)
@@ -45,7 +44,8 @@
           const lat = data.results[0].geometry.location.lat
           const lon = data.results[0].geometry.location.lng
 
-          iFrame.src = `https://forecast.io/embed/#lat=${lat}&lon=${lon}&name=${encodeURIComponent(name)}&color=${tempColor}&font=${font}&units=${units}`
+          iFrame.src = `https://forecast.io/embed/#lat=${lat}&lon=${lon}&name=${encodeURIComponent(name)}&color=${colors.tempColor}&font=${font}&units=${units}`
+          iFrame.style.backgroundColor = colors.enableBackgroundColor ? colors.backgroundColor : ""
           element.appendChild(iFrame)
         }
         else {

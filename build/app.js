@@ -22,13 +22,11 @@ var _slicedToArray = (function () { function sliceIterator(arr, i) { var _arr = 
 
   function updateElement() {
     var _options = options;
-    var tempColor = _options.colors.tempColor;
+    var colors = _options.colors;
+    var zip = _options.zip;
+    var units = _options.units;
 
     var font = "Helvetica";
-    var _options2 = options;
-    var zip = _options2.zip;
-    var units = _options2.units;
-
     var name = undefined;
 
     element = Eager.createElement(options.element, element);
@@ -62,7 +60,8 @@ var _slicedToArray = (function () { function sliceIterator(arr, i) { var _arr = 
           var lat = data.results[0].geometry.location.lat;
           var lon = data.results[0].geometry.location.lng;
 
-          iFrame.src = "https://forecast.io/embed/#lat=" + lat + "&lon=" + lon + "&name=" + encodeURIComponent(name) + "&color=" + tempColor + "&font=" + font + "&units=" + units;
+          iFrame.src = "https://forecast.io/embed/#lat=" + lat + "&lon=" + lon + "&name=" + encodeURIComponent(name) + "&color=" + colors.tempColor + "&font=" + font + "&units=" + units;
+          iFrame.style.backgroundColor = colors.enableBackgroundColor ? colors.backgroundColor : "";
           element.appendChild(iFrame);
         } else {
           // data.status wasn't okay
