@@ -6,13 +6,13 @@ var _slicedToArray = (function () { function sliceIterator(arr, i) { var _arr = 
   // Check for IE9+
   if (!window.addEventListener) return;
 
-  var ELEMENT_ID = "eager-forecast";
   var CONTAINER_HEIGHT = 245;
+  var PLACEHOLDER_ADDRESS = "One Broadway Cambridge, MA 02142";
 
   var element = undefined;
   var options = INSTALL_OPTIONS;
-  var iFrame = Object.assign(document.createElement("iFrame"), {
-    id: "forecast_embed",
+  var connectionErrorMessage = "A connection error occured while gathering location information.";
+  var iframe = Object.assign(document.createElement("iframe"), {
     type: "text/html",
     frameBorder: "0",
     height: CONTAINER_HEIGHT,
@@ -20,62 +20,70 @@ var _slicedToArray = (function () { function sliceIterator(arr, i) { var _arr = 
     width: "100%"
   });
 
+  function renderError(message) {
+    var forecastLogo = document.createElement("forecast-logo");
+    var forecastError = document.createElement("forecast-error");
+
+    forecastError.textContent = message;
+
+    element.setAttribute("data-status", "error");
+    element.appendChild(forecastLogo);
+    element.appendChild(forecastError);
+  }
+
   function updateElement() {
     var _options = options;
     var colors = _options.colors;
-    var zip = _options.zip;
     var units = _options.units;
 
-    var font = "Helvetica";
-    var name = undefined;
-
-    element = Eager.createElement(options.element, element);
-    element.id = ELEMENT_ID;
-    element.style.height = CONTAINER_HEIGHT + "px";
-
+    var address = options.address.trim() || PLACEHOLDER_ADDRESS;
     var request = new XMLHttpRequest();
 
-    request.open("GET", "https://maps.googleapis.com/maps/api/geocode/json?address=" + zip, true);
+    element = Eager.createElement(options.element, element);
+    element.className = "eager-forecast";
+    element.style.height = CONTAINER_HEIGHT + "px";
 
-    request.onload = function () {
-      if (request.status >= 200 && request.status < 400) {
-        // Success!
-        var data = JSON.parse(request.responseText);
+    request.open("GET", "https://maps.googleapis.com/maps/api/geocode/json?address=" + encodeURIComponent(address), true);
 
-        if (data.status === "OK") {
-          var _data$results$0$formatted_address$split = data.results[0].formatted_address.split(", ");
+    request.onload = function onload() {
+      // Target server reached but request error was received.
+      if (request.status < 200 || request.status > 400) return renderError(connectionErrorMessage);
 
-          var _data$results$0$formatted_address$split2 = _slicedToArray(_data$results$0$formatted_address$split, 2);
+      var data = JSON.parse(request.responseText);
 
-          var city = _data$results$0$formatted_address$split2[0];
-          var stateAndZip = _data$results$0$formatted_address$split2[1];
+      // Target server reached but parameter error was received.
+      if (data.status !== "OK") return renderError("Could not find the address, \"" + address + "\"");
 
-          var _stateAndZip$split = stateAndZip.split(" ");
+      var _data$results$0 = data.results[0];
+      var formatted_address = _data$results$0.formatted_address;
+      var _data$results$0$geometry$location = _data$results$0.geometry.location;
+      var lat = _data$results$0$geometry$location.lat;
+      var lng = _data$results$0$geometry$location.lng;
 
-          var _stateAndZip$split2 = _slicedToArray(_stateAndZip$split, 1);
+      console.debug(data.results[0]);
 
-          var state = _stateAndZip$split2[0];
+      var _formatted_address$split = formatted_address.split(", ");
 
-          name = city + ", " + state;
-          var lat = data.results[0].geometry.location.lat;
-          var lon = data.results[0].geometry.location.lng;
+      var _formatted_address$split2 = _slicedToArray(_formatted_address$split, 2);
 
-          iFrame.src = "https://forecast.io/embed/#lat=" + lat + "&lon=" + lon + "&name=" + encodeURIComponent(name) + "&color=" + colors.tempColor + "&font=" + font + "&units=" + units;
-          iFrame.style.backgroundColor = colors.enableBackgroundColor ? colors.backgroundColor : "";
-          element.appendChild(iFrame);
-        } else {
-          // data.status wasn't okay
+      var city = _formatted_address$split2[0];
+      var _formatted_address$split2$1 = _formatted_address$split2[1];
+      var stateAndZip = _formatted_address$split2$1 === undefined ? "" : _formatted_address$split2$1;
 
-        }
-      } else {
-          // We reached our target server, but it returned an error
+      var _stateAndZip$split = stateAndZip.split(" ");
 
-        }
+      var _stateAndZip$split2 = _slicedToArray(_stateAndZip$split, 1);
+
+      var state = _stateAndZip$split2[0];
+
+      var name = state ? city + ", " + state : city;
+
+      iframe.src = "https://forecast.io/embed/#lat=" + lat + "&lon=" + lng + "&name=" + encodeURIComponent(name) + "&color=" + colors.tempColor + "&units=" + units;
+      iframe.style.backgroundColor = colors.enableBackgroundColor ? colors.backgroundColor : "";
+      element.appendChild(iframe);
     };
 
-    request.onerror = function () {
-      // There was a connection error of some sort
-    };
+    request.onerror = renderError.bind(null, connectionErrorMessage);
 
     request.send();
   }

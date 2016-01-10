@@ -3,11 +3,12 @@
   if (!window.addEventListener) return
 
   const CONTAINER_HEIGHT = 245
+  const PLACEHOLDER_ADDRESS = "One Broadway Cambridge, MA 02142"
 
   let element
   let options = INSTALL_OPTIONS
-  const iFrame = Object.assign(document.createElement("iFrame"), {
-    id: "forecast_embed",
+  const connectionErrorMessage = "A connection error occured while gathering location information."
+  const iframe = Object.assign(document.createElement("iframe"), {
     type: "text/html",
     frameBorder: "0",
     height: CONTAINER_HEIGHT,
@@ -15,53 +16,49 @@
     width: "100%"
   })
 
+  function renderError(message) {
+    const forecastLogo = document.createElement("forecast-logo")
+    const forecastError = document.createElement("forecast-error")
+
+    forecastError.textContent = message
+
+    element.setAttribute("data-status", "error")
+    element.appendChild(forecastLogo)
+    element.appendChild(forecastError)
+  }
 
   function updateElement() {
-    const {colors, zip, units} = options
-    const font = "Helvetica"
-    let name
-
-    element = Eager.createElement(options.element, element)
-    element.style.height = `${CONTAINER_HEIGHT}px`
-
+    const {colors, units} = options
+    const address = options.address.trim() || PLACEHOLDER_ADDRESS
     const request = new XMLHttpRequest()
 
-    request.open("GET", `https://maps.googleapis.com/maps/api/geocode/json?address=${zip}`, true)
-
-    request.onload = function() {
-      if (request.status >= 200 && request.status < 400) {
-        // Success!
-        const data = JSON.parse(request.responseText)
+    element = Eager.createElement(options.element, element)
     element.className = "eager-forecast"
+    element.style.height = `${CONTAINER_HEIGHT}px`
 
-        if (data.status === "OK") {
-          const [city, stateAndZip] = data.results[0].formatted_address.split(", ")
+    request.open("GET", `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}`, true)
 
-          const [state] = stateAndZip.split(" ")
+    request.onload = function onload() {
+      // Target server reached but request error was received.
+      if (request.status < 200 || request.status > 400) return renderError(connectionErrorMessage)
 
-          name = `${city}, ${state}`
-          const lat = data.results[0].geometry.location.lat
-          const lon = data.results[0].geometry.location.lng
+      const data = JSON.parse(request.responseText)
 
-          iFrame.src = `https://forecast.io/embed/#lat=${lat}&lon=${lon}&name=${encodeURIComponent(name)}&color=${colors.tempColor}&font=${font}&units=${units}`
-          iFrame.style.backgroundColor = colors.enableBackgroundColor ? colors.backgroundColor : ""
-          element.appendChild(iFrame)
-        }
-        else {
-          // data.status wasn't okay
+      // Target server reached but parameter error was received.
+      if (data.status !== "OK") return renderError(`Could not find the address, "${address}"`)
 
-        }
-      }
-      else {
-        // We reached our target server, but it returned an error
+      const {formatted_address, geometry: {location: {lat, lng}}} = data.results[0]
+      console.debug(data.results[0])
+      const [city, stateAndZip = ""] = formatted_address.split(", ")
+      const [state] = stateAndZip.split(" ")
+      const name = state ? `${city}, ${state}` : city
 
-      }
+      iframe.src = `https://forecast.io/embed/#lat=${lat}&lon=${lng}&name=${encodeURIComponent(name)}&color=${colors.tempColor}&units=${units}`
+      iframe.style.backgroundColor = colors.enableBackgroundColor ? colors.backgroundColor : ""
+      element.appendChild(iframe)
     }
 
-
-    request.onerror = function() {
-        // There was a connection error of some sort
-    }
+    request.onerror = renderError.bind(null, connectionErrorMessage)
 
     request.send()
   }

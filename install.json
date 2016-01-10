@@ -32,11 +32,12 @@
           "method": "prepend"
         }
       },
-      "zip": {
-        "default": "02142",
-        "description": "Put in your zip code to see your weather!",
+      "address": {
+        "default": "",
+        "description": "What's the address for the weather forecast?",
         "order": 1,
-        "title": "Zip code",
+        "placeholder": "One Broadway Cambridge, MA 02142",
+        "title": "Forecast Address",
         "type": "string"
       },
       "colors": {
