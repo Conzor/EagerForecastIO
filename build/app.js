@@ -6,12 +6,15 @@ var _slicedToArray = (function () { function sliceIterator(arr, i) { var _arr = 
   // Check for IE9+
   if (!window.addEventListener) return;
 
+  var CALLBACK_NAME = "EagerForecastOnload";
   var CONTAINER_HEIGHT = 245;
   var PLACEHOLDER_ADDRESS = "One Broadway Cambridge, MA 02142";
+  var RATE_LIMIT = 1500;
 
+  var rateTimeout = undefined;
   var element = undefined;
+  var script = undefined;
   var options = INSTALL_OPTIONS;
-  var connectionErrorMessage = "A connection error occured while gathering location information.";
   var iframe = Object.assign(document.createElement("iframe"), {
     type: "text/html",
     frameBorder: "0",
@@ -20,47 +23,34 @@ var _slicedToArray = (function () { function sliceIterator(arr, i) { var _arr = 
     width: "100%"
   });
 
-  function renderError(message) {
-    var forecastLogo = document.createElement("forecast-logo");
-    var forecastError = document.createElement("forecast-error");
-
-    forecastError.textContent = message;
-
-    element.setAttribute("data-status", "error");
-    element.appendChild(forecastLogo);
-    element.appendChild(forecastError);
-  }
-
   function updateElement() {
     var _options = options;
     var colors = _options.colors;
     var units = _options.units;
 
     var address = options.address.trim() || PLACEHOLDER_ADDRESS;
-    var request = new XMLHttpRequest();
+    var _window$google$maps = window.google.maps;
+    var Geocoder = _window$google$maps.Geocoder;
+    var GeocoderStatus = _window$google$maps.GeocoderStatus;
+
+    var geocoder = new Geocoder();
 
     element = Eager.createElement(options.element, element);
     element.className = "eager-forecast";
     element.style.height = CONTAINER_HEIGHT + "px";
 
-    request.open("GET", "https://maps.googleapis.com/maps/api/geocode/json?address=" + encodeURIComponent(address), true);
+    geocoder.geocode({ address: address }, function (results, status) {
+      if (status !== GeocoderStatus.OK) {
+        element.setAttribute("data-status", "error");
+        element.textContent = "Could not find the address, \"" + address + "\"";
+        return;
+      }
 
-    request.onload = function onload() {
-      // Target server reached but request error was received.
-      if (request.status < 200 || request.status > 400) return renderError(connectionErrorMessage);
-
-      var data = JSON.parse(request.responseText);
-
-      // Target server reached but parameter error was received.
-      if (data.status !== "OK") return renderError("Could not find the address, \"" + address + "\"");
-
-      var _data$results$0 = data.results[0];
-      var formatted_address = _data$results$0.formatted_address;
-      var _data$results$0$geometry$location = _data$results$0.geometry.location;
-      var lat = _data$results$0$geometry$location.lat;
-      var lng = _data$results$0$geometry$location.lng;
-
-      console.debug(data.results[0]);
+      var _results$0 = results[0];
+      var formatted_address = _results$0.formatted_address;
+      var _results$0$geometry$location = _results$0.geometry.location;
+      var lat = _results$0$geometry$location.lat;
+      var lng = _results$0$geometry$location.lng;
 
       var _formatted_address$split = formatted_address.split(", ");
 
@@ -78,27 +68,38 @@ var _slicedToArray = (function () { function sliceIterator(arr, i) { var _arr = 
 
       var name = state ? city + ", " + state : city;
 
-      iframe.src = "https://forecast.io/embed/#lat=" + lat + "&lon=" + lng + "&name=" + encodeURIComponent(name) + "&color=" + colors.tempColor + "&units=" + units;
+      iframe.src = "https://forecast.io/embed/#lat=" + lat() + "&lon=" + lng() + "&name=" + encodeURIComponent(name) + "&color=" + colors.tempColor + "&units=" + units;
       iframe.style.backgroundColor = colors.enableBackgroundColor ? colors.backgroundColor : "";
+
       element.appendChild(iframe);
-    };
-
-    request.onerror = renderError.bind(null, connectionErrorMessage);
-
-    request.send();
+    });
   }
 
+  function updateScript() {
+    script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src = "https://maps.googleapis.com/maps/api/js?v=3.exp&callback=" + CALLBACK_NAME;
+
+    document.body.appendChild(script);
+  }
+
+  window[CALLBACK_NAME] = updateElement;
+
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", updateElement);
+    document.addEventListener("DOMContentLoaded", updateScript);
   } else {
-    updateElement();
+    updateScript();
   }
 
   INSTALL_SCOPE = { // eslint-disable-line no-undef
     setOptions: function setOptions(nextOptions) {
+      clearTimeout(rateTimeout);
       options = nextOptions;
 
-      updateElement();
+      if (!window.google.maps) return updateScript();
+
+      // Rapid requests are rejected by Google and must be limited.
+      rateTimeout = setTimeout(updateElement, RATE_LIMIT);
     }
   };
 })();
