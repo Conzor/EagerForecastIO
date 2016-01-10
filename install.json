@@ -32,11 +32,12 @@
           "method": "prepend"
         }
       },
-      "zip": {
-        "default": "02142",
-        "description": "Put in your zip code to see your weather!",
+      "address": {
+        "default": "",
+        "description": "What's the address for the weather forecast?",
         "order": 1,
-        "title": "Zip code",
+        "placeholder": "1 Broadway Cambridge, MA 02142",
+        "title": "Forecast Address",
         "type": "string"
       },
       "colors": {
@@ -52,19 +53,19 @@
             "type": "string"
           },
           "enableBackgroundColor": {
-          "order": 1,
-          "title": "Enable Background Color",
-          "type": "boolean"
-      },
-      "backgroundColor": {
-        "showIf": {"colors.enableBackgroundColor": true},
-        "default": "",
-        "format": "color",
-        "order": 2,
-        "title": "Background",
-        "type": "string"
+            "order": 1,
+            "title": "Show a background color behind the forecast",
+            "type": "boolean"
+          },
+          "backgroundColor": {
+            "showIf": {"colors.enableBackgroundColor": true},
+            "default": "#ffffff",
+            "format": "color",
+            "order": 2,
+            "title": "Background",
+            "type": "string"
+          }
         }
-       }
       },
       "units": {
         "default": "us",

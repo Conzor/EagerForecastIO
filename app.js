@@ -2,13 +2,16 @@
   // Check for IE9+
   if (!window.addEventListener) return
 
-  const ELEMENT_ID = "eager-forecast"
+  const CALLBACK_NAME = "EagerForecastOnload"
   const CONTAINER_HEIGHT = 245
+  const PLACEHOLDER_ADDRESS = "1 Broadway Cambridge, MA 02142"
+  const RATE_LIMIT = 1500
 
+  let rateTimeout
   let element
+  let script
   let options = INSTALL_OPTIONS
-  const iFrame = Object.assign(document.createElement("iFrame"), {
-    id: "forecast_embed",
+  const iframe = Object.assign(document.createElement("iframe"), {
     type: "text/html",
     frameBorder: "0",
     height: CONTAINER_HEIGHT,
@@ -16,71 +19,62 @@
     width: "100%"
   })
 
-
   function updateElement() {
-    const {colors: {tempColor}} = options
-    const font = "Helvetica"
-    const {zip, units} = options
-    let name
+    const {colors, units} = options
+    const address = options.address.trim() || PLACEHOLDER_ADDRESS
+    const {Geocoder, GeocoderStatus} = window.google.maps
+    const geocoder = new Geocoder()
 
     element = Eager.createElement(options.element, element)
-    element.id = ELEMENT_ID
+    element.className = "eager-forecast"
     element.style.height = `${CONTAINER_HEIGHT}px`
 
-    const request = new XMLHttpRequest()
-
-    request.open("GET", `http://maps.googleapis.com/maps/api/geocode/json?address=${zip}`, true)
-
-    request.onload = function() {
-      if (request.status >= 200 && request.status < 400) {
-        // Success!
-        const data = JSON.parse(request.responseText)
-
-        if (data.status === "OK") {
-          const [city, stateAndZip] = data.results[0].formatted_address.split(", ")
-
-          const [state] = stateAndZip.split(" ")
-
-          name = `${city}, ${state}`
-          const lat = data.results[0].geometry.location.lat
-          const lon = data.results[0].geometry.location.lng
-
-          iFrame.src = `https://forecast.io/embed/#lat=${lat}&lon=${lon}&name=${encodeURIComponent(name)}&color=${tempColor}&font=${font}&units=${units}`
-          element.appendChild(iFrame)
-        }
-        else {
-          // data.status wasn't okay
-
-        }
+    geocoder.geocode({address}, (results, status) => {
+      if (status !== GeocoderStatus.OK) {
+        element.setAttribute("data-status", "error")
+        element.textContent = `Could not find the address, "${address}"`
+        return
       }
-      else {
-        // We reached our target server, but it returned an error
 
-      }
-    }
+      const {formatted_address, geometry: {location: {lat, lng}}} = results[0]
+      const [city, stateAndZip = ""] = formatted_address.split(", ")
+      const [state] = stateAndZip.split(" ")
+      const name = state ? `${city}, ${state}` : city
 
+      iframe.src = `https://forecast.io/embed/#lat=${lat()}&lon=${lng()}&name=${encodeURIComponent(name)}&color=${colors.tempColor}&units=${units}`
+      iframe.style.backgroundColor = colors.enableBackgroundColor ? colors.backgroundColor : ""
 
-    request.onerror = function() {
-        // There was a connection error of some sort
-    }
-
-    request.send()
+      element.appendChild(iframe)
+    })
   }
 
+  function updateScript() {
+    script = document.createElement("script")
+    script.type = "text/javascript"
+    script.src = `https://maps.googleapis.com/maps/api/js?v=3.exp&callback=${CALLBACK_NAME}`
+
+    document.body.appendChild(script)
+  }
+
+  window[CALLBACK_NAME] = updateElement
 
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", updateElement)
+    document.addEventListener("DOMContentLoaded", updateScript)
   }
   else {
-    updateElement()
+    updateScript()
   }
 
 
   INSTALL_SCOPE = { // eslint-disable-line no-undef
     setOptions(nextOptions) {
+      clearTimeout(rateTimeout)
       options = nextOptions
 
-      updateElement()
+      if (!window.google.maps) return updateScript()
+
+      // Rapid requests are rejected by Google and must be limited.
+      rateTimeout = setTimeout(updateElement, RATE_LIMIT)
     }
   }
 }())

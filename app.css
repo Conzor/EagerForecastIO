@@ -1,7 +1,21 @@
-#eager-forecast {
+.eager-forecast {
   display: block;
 }
 
-#eager-forecast iframe {
+.eager-forecast[data-status="error"] {
+  background-color: rgba(255, 255, 255, 0.7);
+  box-sizing: border-box;
+  color: #222;
+  display: block;
+  font-family: "Helvetica", sans-serif;
+  font-size: 18px;
+  font-style: italic;
+  font-weight: normal;
+  line-height: 1.45;
+  padding-top: 15%;
+  text-align: center;
+}
+
+.eager-forecast iframe {
   border: none;
 }
