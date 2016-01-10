@@ -2,7 +2,6 @@
   // Check for IE9+
   if (!window.addEventListener) return
 
-  const ELEMENT_ID = "eager-forecast"
   const CONTAINER_HEIGHT = 245
 
   let element
@@ -23,7 +22,6 @@
     let name
 
     element = Eager.createElement(options.element, element)
-    element.id = ELEMENT_ID
     element.style.height = `${CONTAINER_HEIGHT}px`
 
     const request = new XMLHttpRequest()
@@ -34,6 +32,7 @@
       if (request.status >= 200 && request.status < 400) {
         // Success!
         const data = JSON.parse(request.responseText)
+    element.className = "eager-forecast"
 
         if (data.status === "OK") {
           const [city, stateAndZip] = data.results[0].formatted_address.split(", ")

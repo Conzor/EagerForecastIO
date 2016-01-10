@@ -1,7 +1,7 @@
-#eager-forecast {
+.eager-forecast {
   display: block;
 }
 
-#eager-forecast iframe {
+.eager-forecast iframe {
   border: none;
 }
