@@ -54,7 +54,7 @@
           },
           "enableBackgroundColor": {
             "order": 1,
-            "title": "Use background color",
+            "title": "Show a background color behind the forecast",
             "type": "boolean"
           },
           "backgroundColor": {
