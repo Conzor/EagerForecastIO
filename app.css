@@ -19,3 +19,11 @@
 .eager-forecast iframe {
   border: none;
 }
+
+@media(max-width: 500px) {
+  /* Force the breakpoint earlier, so the forecast doesn't fall outside the viewport. */
+  .eager-forecast {
+    max-width: 390px;
+    margin: 0 auto;
+  }
+}
