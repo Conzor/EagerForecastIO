@@ -3,6 +3,7 @@
   if (!window.addEventListener) return
 
   const CALLBACK_NAME = "EagerForecastOnload"
+  const GOOGLE_KEY = "AIzaSyDHXsFL-DHAedbPM9V032TdzexEJ10ysOo"
   const CONTAINER_HEIGHT = 245
   const PLACEHOLDER_ADDRESS = "1 Broadway Cambridge, MA 02142"
   const RATE_LIMIT = 1500
@@ -51,7 +52,7 @@
   function updateScript() {
     script = document.createElement("script")
     script.type = "text/javascript"
-    script.src = `https://maps.googleapis.com/maps/api/js?v=3.exp&callback=${CALLBACK_NAME}`
+    script.src = `https://maps.googleapis.com/maps/api/js?v=3.exp&key=${GOOGLE_KEY}&callback=${CALLBACK_NAME}`
 
     document.body.appendChild(script)
   }
