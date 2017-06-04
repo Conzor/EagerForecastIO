@@ -3,7 +3,7 @@
     "head": [
       {
         "type": "style",
-        "src": "./app.css"
+        "src": "./build/app.css"
       },
       {
         "type": "script",
@@ -36,7 +36,7 @@
         "default": "",
         "description": "What's the address for the weather forecast?",
         "order": 1,
-        "placeholder": "1 Broadway Cambridge, MA 02142",
+        "placeholder": "San Francisco, CA 94107",
         "title": "Forecast Address",
         "type": "string"
       },
