@@ -1,8 +1,8 @@
-.eager-forecast {
+.cloudflare-forecast {
   display: block;
 }
 
-.eager-forecast[data-status="error"] {
+.cloudflare-forecast[data-status="error"] {
   background-color: rgba(255, 255, 255, 0.7);
   box-sizing: border-box;
   color: #222;
@@ -16,13 +16,13 @@
   text-align: center;
 }
 
-.eager-forecast iframe {
+.cloudflare-forecast iframe {
   border: none;
 }
 
 @media(max-width: 500px) {
   /* Force the breakpoint earlier, so the forecast doesn't fall outside the viewport. */
-  .eager-forecast {
+  .cloudflare-forecast {
     max-width: 390px;
     margin: 0 auto;
   }
